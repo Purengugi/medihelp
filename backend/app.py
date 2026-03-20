@@ -21,7 +21,7 @@ except ImportError:
     pass
 
 app = Flask(__name__)
-CORS(app, origins="*")
+CORS(app, origins=["https://medihelp-nutritional-ai-git-main-purengugis-projects.vercel.app"])
 
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET', 'medihelp-secret-key-2026')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=12)
