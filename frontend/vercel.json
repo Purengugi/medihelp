@@ -1,12 +1,5 @@
 {
-  "buildCommand": "npm install && npm run build",
-  "installCommand": "npm install",
-  "framework": "create-react-app"
-}
-{
-  "build": {
-    "env": {
-      "CI": "false"
-    }
-  }
+  "buildCommand": "chmod +x node_modules/.bin/react-scripts && react-scripts build",
+  "outputDirectory": "build",
+  "installCommand": "npm install"
 }
