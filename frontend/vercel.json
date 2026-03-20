@@ -3,3 +3,10 @@
   "installCommand": "npm install",
   "framework": "create-react-app"
 }
+{
+  "build": {
+    "env": {
+      "CI": "false"
+    }
+  }
+}
