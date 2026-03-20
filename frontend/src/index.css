@@ -1,0 +1,226 @@
+/* MediHelp Design System - Kenya Green + Warm Earth */
+:root {
+  --green: #16a34a;
+  --green-dark: #15803d;
+  --green-light: #dcfce7;
+  --green-bg: #f0fdf4;
+  --amber: #d97706;
+  --amber-light: #fef3c7;
+  --red: #dc2626;
+  --red-light: #fef2f2;
+  --ink: #111827;
+  --ink-soft: #374151;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --surface: #ffffff;
+  --bg: #f9fafb;
+  --radius: 14px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Outfit', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; line-height: 1.2; }
+
+a { color: var(--green); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.fade-up { animation: fadeUp 0.4s ease both; }
+
+/* Layout */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+.page { min-height: calc(100vh - 64px); padding: 2rem 1.25rem; max-width: 1100px; margin: 0 auto; }
+
+/* Card */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 0.6rem 1.25rem;
+  border-radius: 10px; border: none; cursor: pointer;
+  font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 600;
+  transition: all 0.18s; white-space: nowrap;
+}
+.btn-primary { background: var(--green); color: white; }
+.btn-primary:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(22,163,74,0.3); }
+.btn-outline { background: transparent; color: var(--green); border: 1.5px solid var(--green); }
+.btn-outline:hover { background: var(--green-bg); }
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); color: var(--ink); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+.btn-sm { padding: 0.4rem 0.85rem; font-size: 0.8rem; }
+.btn-danger { background: var(--red); color: white; }
+.btn-danger:hover { background: #b91c1c; }
+
+/* Form */
+.form-group { margin-bottom: 1rem; }
+.form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.form-input {
+  width: 100%; padding: 0.65rem 1rem;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-family: 'Outfit', sans-serif; font-size: 0.9rem; color: var(--ink);
+  background: var(--surface); outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+.form-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(22,163,74,0.12); }
+
+/* Alert */
+.alert { padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.875rem; margin-bottom: 1rem; }
+.alert-error { background: var(--red-light); color: var(--red); border: 1px solid #fca5a5; }
+.alert-success { background: var(--green-light); color: var(--green-dark); border: 1px solid #86efac; }
+.alert-warning { background: var(--amber-light); color: var(--amber); border: 1px solid #fcd34d; }
+
+/* Badge */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+
+/* Spinner */
+.spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 1.5rem; }
+.tab { padding: 0.6rem 1rem; font-size: 0.875rem; font-weight: 600; color: var(--muted); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.18s; }
+.tab.active { color: var(--green); border-bottom-color: var(--green); }
+.tab:hover:not(.active) { color: var(--ink); }
+
+/* Grid helpers */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  h1 { font-size: 1.8rem !important; }
+}
+
+/* ── Mobile Responsiveness ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Tabs scroll horizontally on mobile */
+  .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; padding-bottom: 2px; }
+  .tab  { white-space: nowrap; flex-shrink: 0; }
+
+  /* Grids collapse to 1 column */
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr !important; }
+
+  /* Cards full width */
+  .card { padding: 1rem; }
+
+  /* Tables scroll horizontally */
+  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Admin sidebar collapses on mobile */
+  .admin-sidebar { display: none; }
+  .admin-sidebar.open { display: flex; position: fixed; top: 60px; left: 0; bottom: 0; z-index: 200; width: 220px; }
+
+  /* Dashboard height adjustments */
+  .chatbox { height: calc(100vh - 220px) !important; min-height: 400px !important; }
+
+  /* Map height on mobile */
+  .hospital-map { height: 260px !important; }
+
+  /* Buttons stack on mobile */
+  .btn-row { flex-direction: column; }
+  .btn-row .btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  /* Smaller padding */
+  body { font-size: 15px; }
+  .card { padding: 0.875rem; }
+  h1, h2 { font-size: 1.4rem !important; }
+
+  /* Full-width modals on phone */
+  .modal-inner { width: 100% !important; max-width: 100% !important; border-radius: 16px 16px 0 0; position: fixed; bottom: 0; max-height: 90vh; }
+}
+
+/* Admin mobile toggle button */
+.admin-toggle-btn {
+  display: none;
+  position: fixed; bottom: 20px; right: 20px;
+  z-index: 300; width: 50px; height: 50px;
+  border-radius: 50%; background: #16a34a; color: white;
+  border: none; cursor: pointer; box-shadow: 0 4px 16px rgba(22,163,74,0.4);
+  font-size: 1.2rem; align-items: center; justify-content: center;
+}
+@media (max-width: 768px) {
+  .admin-toggle-btn { display: flex; }
+}
+
+/* ── ADMIN SIDEBAR: always-dark, immune to all JS-injected light-mode overrides ── */
+/* These rules live in the static stylesheet so they load first and can't be beaten */
+.mh-admin-sidebar {
+  background: #0f172a !important;
+}
+.mh-admin-sidebar *,
+.mh-admin-sidebar button,
+.mh-admin-sidebar a,
+.mh-admin-sidebar span,
+.mh-admin-sidebar div,
+.mh-admin-sidebar p,
+.mh-admin-sidebar nav,
+.mh-admin-sidebar i,
+.mh-admin-sidebar svg {
+  color: rgba(255,255,255,0.75) !important;
+}
+/* Active nav item */
+.mh-admin-sidebar .mh-admin-nav-active {
+  background: #16a34a !important;
+}
+.mh-admin-sidebar .mh-admin-nav-active,
+.mh-admin-sidebar .mh-admin-nav-active *,
+.mh-admin-sidebar .mh-admin-nav-active i {
+  color: #ffffff !important;
+}
+/* Brand name and role text */
+.mh-admin-sidebar .mh-admin-brand-name,
+.mh-admin-sidebar .mh-admin-brand-name * {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+.mh-admin-sidebar .mh-admin-brand-role,
+.mh-admin-sidebar .mh-admin-brand-role * {
+  color: #4ade80 !important;
+}
+/* Hover state for nav buttons - needs JS inline style override to work,
+   but set the base so it's correct */
+.mh-admin-sidebar button:hover:not(.mh-admin-nav-active) {
+  background: rgba(255,255,255,0.1) !important;
+  color: #ffffff !important;
+}

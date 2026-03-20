@@ -1,0 +1,18 @@
+{
+  "classes": [
+    "calcium",
+    "folate",
+    "iodine",
+    "iron",
+    "protein",
+    "vitamin_a",
+    "vitamin_b12",
+    "vitamin_c",
+    "vitamin_d",
+    "zinc"
+  ],
+  "vocabulary_size": 875,
+  "training_samples": 1516,
+  "algorithm": "TF-IDF (ngram 1-2) + Multinomial Naive Bayes",
+  "accuracy": 88.0
+}
