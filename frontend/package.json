@@ -20,4 +20,9 @@
     "production": [">0.2%", "not dead"],
     "development": ["last 1 chrome version"]
   }
+  {
+  "buildCommand": "npm install && npm run build",
+  "installCommand": "npm install",
+  "framework": "create-react-app"
+}
 }
