@@ -32,6 +32,27 @@ app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
 app.config['JWT_QUERY_STRING_NAME'] = 'token'
 DB_PATH = os.environ.get('DB_PATH', 'medihelp.db')
 
+
+# ── Performance: simple in-process cache for slow read endpoints ──────────
+import threading, time as _time
+_cache = {}
+_cache_lock = threading.Lock()
+
+def cache_get(key):
+    with _cache_lock:
+        entry = _cache.get(key)
+        if entry and (_time.time() - entry['ts']) < entry['ttl']:
+            return entry['val']
+        return None
+
+def cache_set(key, val, ttl=60):
+    with _cache_lock:
+        _cache[key] = {'val': val, 'ts': _time.time(), 'ttl': ttl}
+
+def cache_del_prefix(prefix):
+    with _cache_lock:
+        keys = [k for k in _cache if k.startswith(prefix)]
+        for k in keys: del _cache[k]
 # Optional: Rate limiting (install flask-limiter)
 try:
     from flask_limiter import Limiter
@@ -57,8 +78,12 @@ except ImportError:
 
 # ── DB helpers ────────────────────────────────────────────────────────────────
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    conn.execute("PRAGMA cache_size=-4000")
+    conn.execute("PRAGMA temp_store=MEMORY")
     return conn
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -334,6 +359,18 @@ def init_db():
         except Exception as e:
             print(f"Warning: could not seed deficiencies from ai_engine: {e}")
 
+    # ── Performance: Add DB indexes for fast queries ──────────────────────────
+    conn.executescript("""
+        CREATE INDEX IF NOT EXISTS idx_analyses_user ON analyses(user_id);
+        CREATE INDEX IF NOT EXISTS idx_analyses_ts   ON analyses(timestamp);
+        CREATE INDEX IF NOT EXISTS idx_appts_user    ON appointments(user_id);
+        CREATE INDEX IF NOT EXISTS idx_meds_user     ON medications(user_id);
+        CREATE INDEX IF NOT EXISTS idx_audit_user    ON audit_logs(user_id);
+        CREATE INDEX IF NOT EXISTS idx_feedback_user ON feedback(user_id);
+        PRAGMA journal_mode=WAL;
+        PRAGMA synchronous=NORMAL;
+        PRAGMA cache_size=-8000;
+    """)
     conn.commit()
     conn.close()
 
@@ -480,6 +517,8 @@ def analyze():
     add_blockchain_record(conn, 'analysis', analysis_id, record_str)
     conn.commit()
     conn.close()
+    cache_del_prefix(f'history:{uid}')
+    cache_del_prefix(f'trends:{uid}')
     return jsonify({'results': results, 'engine': engine_used, 'lang': lang}), 200
 
 def analyze_with_db(text):
@@ -546,20 +585,23 @@ def submit_feedback():
 @jwt_required()
 def get_history():
     uid = current_user_id()
+    ck = f'history:{uid}'
+    cached = cache_get(ck)
+    if cached: return jsonify(cached), 200
     conn = get_db()
     rows = conn.execute(
-        "SELECT id,symptoms,results,timestamp FROM analyses WHERE user_id=? ORDER BY timestamp DESC LIMIT 50",
+        "SELECT id,symptoms,results,timestamp,engine_used FROM analyses WHERE user_id=? ORDER BY timestamp DESC LIMIT 50",
         (uid,)).fetchall()
     conn.close()
-    # Handle engine_used gracefully (column added in v2 migration)
     result = []
     for r in rows:
         item = {'id':r['id'],'symptoms':r['symptoms'],
                 'results':json.loads(r['results']) if r['results'] else [],
                 'timestamp':r['timestamp']}
-        try: item['engine_used'] = r['engine_used']
+        try: item['engine_used'] = r['engine_used'] or 'rule_based'
         except Exception: item['engine_used'] = 'rule_based'
         result.append(item)
+    cache_set(ck, result, ttl=30)
     return jsonify(result), 200
 
 @app.route('/api/profile', methods=['GET','PUT'])
@@ -603,6 +645,8 @@ def delete_history():
         log_audit('delete_all_history', 'all analyses deleted', uid)
     conn.commit()
     conn.close()
+    cache_del_prefix(f'history:{uid}')
+    cache_del_prefix(f'trends:{uid}')
     return jsonify({'message': 'History deleted successfully'}), 200
 
 # ── Delete Account (self-service) ─────────────────────────────────────────────
@@ -789,9 +833,39 @@ def export_history():
 </body>
 </html>'''
 
-    response = make_response(html)
+    # ── Try WeasyPrint for true PDF output ────────────────────────────────────
+    try:
+        from weasyprint import HTML as WPhtml
+        pdf_bytes = WPhtml(string=html).write_pdf()
+        response = make_response(pdf_bytes)
+        response.headers['Content-Type'] = 'application/pdf'
+        fname = f'MediHelp_Report_{datetime.utcnow().strftime("%Y-%m-%d")}.pdf'
+        response.headers['Content-Disposition'] = f'attachment; filename="{fname}"'
+        return response
+    except ImportError:
+        pass  # WeasyPrint not installed – fall through to browser-print PDF below
+
+    # ── Fallback: inject auto-print script so browser saves directly as PDF ──
+    # The page opens, immediately triggers window.print() and closes the tab.
+    # In Chrome/Edge this opens the "Save as PDF" print dialog automatically.
+    auto_print_html = html.replace(
+        '</body>',
+        '''<script>
+          // Auto-trigger print dialog so user saves as PDF (not HTML)
+          window.addEventListener("load", function() {
+            // Small delay to let CSS render
+            setTimeout(function() {
+              window.print();
+            }, 400);
+          });
+        </script>
+        </body>'''
+    )
+    # Also remove the manual "Print / Save as PDF" button since print fires automatically
+    response = make_response(auto_print_html)
     response.headers['Content-Type'] = 'text/html; charset=utf-8'
-    response.headers['Content-Disposition'] = 'inline; filename=medihelp_report.html'
+    # Use inline so it opens in a new tab (where print dialog appears) rather than downloading as HTML
+    response.headers['Content-Disposition'] = 'inline'
     return response
 
 # ── Health Trends (for charts) ─────────────────────────────────────────────────
@@ -799,6 +873,9 @@ def export_history():
 @jwt_required()
 def user_trends():
     uid = current_user_id()
+    ck = f'trends:{uid}'
+    cached = cache_get(ck)
+    if cached: return jsonify(cached), 200
     conn = get_db()
     # Daily counts last 30 days
     daily = conn.execute("""
@@ -824,11 +901,13 @@ def user_trends():
 
     top_defs = sorted(def_counts.items(), key=lambda x: x[1], reverse=True)[:5]
     conn.close()
-    return jsonify({
+    out = {
         'daily': [{'day': r['day'], 'count': r['count']} for r in daily],
         'top_deficiencies': [{'name': k, 'count': v} for k, v in top_defs],
         'total_analyses': sum(d_counts for _, d_counts in top_defs),
-    }), 200
+    }
+    cache_set(ck, out, ttl=60)
+    return jsonify(out), 200
 
 # ── Appointments ───────────────────────────────────────────────────────────────
 @app.route('/api/appointments', methods=['GET'])
@@ -1322,6 +1401,9 @@ def hospitals_list():
     lat = request.args.get('lat', type=float)
     lon = request.args.get('lon', type=float)
     search = request.args.get('q','').lower().strip()
+    ck = f'hospitals:{search}:{lat}:{lon}'
+    cached = cache_get(ck)
+    if cached: return jsonify(cached), 200
     conn = get_db()
     rows = conn.execute("SELECT * FROM hospitals").fetchall()
     conn.close()
@@ -1341,6 +1423,7 @@ def hospitals_list():
         result.sort(key=lambda x: x['distance_km'] if x['distance_km'] is not None else 9999)
     else:
         result.sort(key=lambda x: x['name'])
+    cache_set(ck, result, ttl=300)
     return jsonify(result), 200
 
 @app.route('/api/hospitals', methods=['POST'])
@@ -1394,6 +1477,8 @@ def delete_hospital(hid):
 # ── Deficiencies API ───────────────────────────────────────────────────────────
 @app.route('/api/deficiencies', methods=['GET'])
 def get_deficiencies():
+    cached = cache_get('deficiencies')
+    if cached: return jsonify(cached), 200
     conn = get_db()
     rows = conn.execute("SELECT * FROM deficiencies ORDER BY name").fetchall()
     conn.close()
@@ -1404,6 +1489,7 @@ def get_deficiencies():
             try: d[f] = json.loads(d[f] or '[]')
             except: d[f] = []
         result.append(d)
+    cache_set('deficiencies', result, ttl=120)
     return jsonify(result), 200
 
 @app.route('/api/deficiencies/<def_id>', methods=['PUT'])

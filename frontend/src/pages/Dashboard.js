@@ -28,7 +28,7 @@ const TRANSLATIONS = {
     // Preferences
     sos: 'SOS', darkMode: 'Dark mode', language: 'Language',
     // Appointments
-    bookAppointment: 'Book Appointment', doctorName: 'Doctor / Specialist',
+    bookAppointment: 'Add Appointment', doctorName: 'Doctor / Specialist',
     hospitalName: 'Hospital (type any name)', date: 'Date', time: 'Time',
     notes: 'Notes (reason for visit)',
     appointmentDoctorPH: 'e.g. Dr. Wambui Kamau',
@@ -75,7 +75,7 @@ const TRANSLATIONS = {
     emergencyContact: 'Emergency Contact (SOS)',
     contactName: 'Contact Name / Email',
     contactPhone: 'Contact Phone',
-    contactNamePH: 'e.g. John Kamau or johndoe@gmail.com',
+    contactNamePH: 'e.g. John Kamau or johnk@gmail.com',
     contactPhonePH: 'e.g. +254 712 345 678',
     preferences: 'Preferences',
     healthInfo: 'Health Information',
@@ -166,7 +166,7 @@ const TRANSLATIONS = {
     emergencyContact: 'Wasiliani wa Dharura (SOS)',
     contactName: 'Jina / Barua Pepe ya Wasiliani',
     contactPhone: 'Simu ya Wasiliani',
-    contactNamePH: 'mfano: John Kamau au johndoe@gmail.com',
+    contactNamePH: 'mfano: John Kamau au johnk@gmail.com',
     contactPhonePH: 'mfano: +254 712 345 678',
     preferences: 'Mapendeleo',
     healthInfo: 'Taarifa za Afya',
@@ -579,7 +579,6 @@ function Chatbot({ user, lang }) {
     setInput('');
     setMessages(m => [...m, { id:Date.now(), type:'user', text, results:null, analysisId:null }]);
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800));
 
     // Detect if user typed in Swahili (either explicit or detected)
     const useSw = lang === 'sw' || detectSwahili(text);
@@ -843,7 +842,7 @@ function History({ t, lang }) {
       .catch(() => { setError('Could not load history. Run migrate_db.py if you haven\'t yet, then restart Flask.'); setLoading(false); });
   }, []);
 
-  const exportPDF = async () => {
+const exportPDF = async () => {
     try {
       const res = await api.get(`/api/export/history?format=pdf&lang=${lang}`, {
         responseType: 'text',
@@ -861,7 +860,7 @@ function History({ t, lang }) {
       // Fallback: direct HTML file download if pop-up blocked
       const a = document.createElement('a');
       a.href = blobUrl;
-      a.download = `MediHelp_Report_${new Date().toISOString().split('T')[0]}.html`;
+
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -878,6 +877,7 @@ function History({ t, lang }) {
         : 'Could not generate report. Is the backend running?');
     }
   };
+
 
   const deleteItem = async (id) => {
     if (!window.confirm(t.confirmDeleteItem || 'Delete this record?')) return;
@@ -1435,21 +1435,32 @@ function HealthTrends({ t }) {
             {lang==='sw'?'Hakuna shughuli katika siku 30 zilizopita.':'No activity in the last 30 days. Use AI Chat to get started!'}
           </div>
         ) : (
-          <div style={{display:'flex',gap:3,alignItems:'flex-end',height:120,overflowX:'auto',paddingBottom:4}}>
-            {data.daily.map(d => (
-              <div key={d.day} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4,minWidth:28,flex:1}}>
-                <div style={{fontSize:'0.6rem',color:'#9ca3af',fontWeight:700}}>{d.count}</div>
-                <div title={`${d.day}: ${d.count}`} style={{
-                  width:'100%', minWidth:20,
-                  height:`${Math.max((d.count/maxCount)*90, 8)}px`,
-                  background:'linear-gradient(to top,#16a34a,#4ade80)',
-                  borderRadius:'4px 4px 0 0', transition:'height 0.3s'
-                }}/>
-                <div style={{fontSize:'0.55rem',color:'#9ca3af',whiteSpace:'nowrap',transform:'rotate(-45deg)',transformOrigin:'top left',marginTop:4}}>
-                  {new Date(d.day).toLocaleDateString('en-KE',{month:'short',day:'numeric'})}
+          <div style={{overflowX:'auto'}}>
+            <div style={{display:'flex',gap:6,alignItems:'flex-end',minHeight:160,padding:'16px 0 40px',minWidth:`${Math.max(data.daily.length*38,300)}px`}}>
+              {data.daily.map(d => (
+                <div key={d.day} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:0,flex:'1 0 30px',minWidth:30,maxWidth:56}}>
+                  <div style={{fontSize:'0.68rem',color:'#6b7280',fontWeight:700,marginBottom:4,whiteSpace:'nowrap'}}>{d.count}</div>
+                  <div
+                    title={`${new Date(d.day).toLocaleDateString('en-KE',{month:'short',day:'numeric'})}: ${d.count} ${lang==='sw'?'uchambuzi':'analyses'}`}
+                    style={{
+                      width:'80%', minWidth:18,
+                      height:`${Math.max(Math.round((d.count/maxCount)*110), 10)}px`,
+                      background:'linear-gradient(to top,#16a34a,#4ade80)',
+                      borderRadius:'5px 5px 0 0',
+                      transition:'height 0.4s ease',
+                      cursor:'default',
+                      boxShadow:'0 2px 6px rgba(22,163,74,0.2)',
+                    }}/>
+                  <div style={{
+                    fontSize:'0.58rem',color:'#9ca3af',whiteSpace:'nowrap',
+                    transform:'rotate(-45deg)',transformOrigin:'50% 0',
+                    marginTop:8,lineHeight:1,
+                  }}>
+                    {new Date(d.day).toLocaleDateString('en-KE',{month:'short',day:'numeric'})}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </div>

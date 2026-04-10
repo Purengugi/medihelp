@@ -974,10 +974,19 @@ function Analytics() {
           ? <div style={{textAlign:'center',color:'#9ca3af',padding:'2rem',fontSize:'0.875rem'}}>{lang==='sw'?'Hakuna data ya uchambuzi bado.':'No analysis data yet.'}</div>
           : <div style={{display:'flex',gap:3,alignItems:'flex-end',height:120,overflowX:'auto',paddingBottom:4}}>
             {data.daily_analyses.map(d => (
-              <div key={d.day} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,minWidth:26,flex:1}}>
-                <div style={{fontSize:'0.55rem',color:'#9ca3af'}}>{d.count}</div>
-                <div title={`${d.day}: ${d.count}`} style={{width:'100%',minWidth:18,height:`${Math.max((d.count/maxDaily)*90,6)}px`,background:'linear-gradient(to top,#16a34a,#4ade80)',borderRadius:'3px 3px 0 0'}}/>
-                <div style={{fontSize:'0.5rem',color:'#9ca3af',whiteSpace:'nowrap',transform:'rotate(-45deg)',transformOrigin:'top left',marginTop:2}}>
+              <div key={d.day} style={{display:'flex',flexDirection:'column',alignItems:'center',flex:'1 0 28px',minWidth:28,maxWidth:52}}>
+                <div style={{fontSize:'0.65rem',color:'#6b7280',fontWeight:600,marginBottom:4}}>{d.count}</div>
+                <div
+                  title={`${new Date(d.day).toLocaleDateString('en-KE',{month:'short',day:'numeric'})}: ${d.count}`}
+                  style={{
+                    width:'75%', minWidth:16,
+                    height:`${Math.max(Math.round((d.count/maxDaily)*110),10)}px`,
+                    background:'linear-gradient(to top,#16a34a,#4ade80)',
+                    borderRadius:'5px 5px 0 0',
+                    boxShadow:'0 2px 6px rgba(22,163,74,0.2)',
+                    transition:'height 0.4s ease',
+                  }}/>
+                <div style={{fontSize:'0.58rem',color:'#9ca3af',whiteSpace:'nowrap',transform:'rotate(-45deg)',transformOrigin:'50% 0',marginTop:8,lineHeight:1}}>
                   {new Date(d.day).toLocaleDateString('en-KE',{month:'short',day:'numeric'})}
                 </div>
               </div>
@@ -992,11 +1001,23 @@ function Analytics() {
         </h4>
         {data.daily_registrations.length === 0
           ? <div style={{textAlign:'center',color:'#9ca3af',padding:'1.5rem',fontSize:'0.875rem'}}>{lang==='sw'?'Hakuna wasajili katika kipindi hiki.':'No registrations in this period.'}</div>
-          : <div style={{display:'flex',gap:3,alignItems:'flex-end',height:80,overflowX:'auto',paddingBottom:4}}>
+          : <div style={{display:'flex',gap:5,alignItems:'flex-end',minHeight:160,padding:'8px 0 44px',overflowX:'auto',minWidth:`${Math.max((data.daily_registrations||[]).length*38,280)}px`}}>
             {data.daily_registrations.map(d => (
-              <div key={d.day} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,minWidth:26,flex:1}}>
-                <div style={{fontSize:'0.55rem',color:'#9ca3af'}}>{d.count}</div>
-                <div style={{width:'100%',minWidth:18,height:`${Math.max((d.count/maxReg)*60,6)}px`,background:'linear-gradient(to top,#0891b2,#67e8f9)',borderRadius:'3px 3px 0 0'}}/>
+              <div key={d.day} style={{display:'flex',flexDirection:'column',alignItems:'center',flex:'1 0 28px',minWidth:28,maxWidth:52}}>
+                <div style={{fontSize:'0.65rem',color:'#6b7280',fontWeight:600,marginBottom:4}}>{d.count}</div>
+                <div
+                  title={`${new Date(d.day).toLocaleDateString('en-KE',{month:'short',day:'numeric'})}: ${d.count}`}
+                  style={{
+                    width:'75%', minWidth:16,
+                    height:`${Math.max(Math.round((d.count/maxReg)*110),10)}px`,
+                    background:'linear-gradient(to top,#0891b2,#67e8f9)',
+                    borderRadius:'5px 5px 0 0',
+                    boxShadow:'0 2px 6px rgba(8,145,178,0.2)',
+                    transition:'height 0.4s ease',
+                  }}/>
+                <div style={{fontSize:'0.58rem',color:'#9ca3af',whiteSpace:'nowrap',transform:'rotate(-45deg)',transformOrigin:'50% 0',marginTop:8,lineHeight:1}}>
+                  {new Date(d.day).toLocaleDateString('en-KE',{month:'short',day:'numeric'})}
+                </div>
               </div>
             ))}
           </div>

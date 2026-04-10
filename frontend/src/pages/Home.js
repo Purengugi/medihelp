@@ -67,6 +67,9 @@ const T = {
     heroPara:'AI-powered analysis of nutritional deficiencies common in Kenya. Describe your symptoms, get guidance, find nearby hospitals - all free.',
     getStarted:'Get Started Free',
     signIn:'Sign In',
+    tryGuest:'Try Without Account',
+    guestBadge:'No registration needed',
+    guestSubtext:'3 free AI checks · No registering required',
     statsLabel:'10 Deficiencies Tracked',
     statsSubLabel:'Kenya-specific knowledge base with local food remedies and supplement guidance',
     featuresTitle:'What MediHelp Does',
@@ -84,6 +87,9 @@ const T = {
     heroPara:'Uchambuzi wa AI wa upungufu wa lishe nchini Kenya. Elezea dalili zako, pata mwongozo, pata hospitali - bure kabisa.',
     getStarted:'Anza Sasa Bure',
     signIn:'Ingia',
+    tryGuest:'Jaribu Bila Akaunti',
+    guestBadge:'Hakuna usajili unaohitajika',
+    guestSubtext:'Ukaguzi 3 bure wa AI · Bure kabisa',
     statsLabel:'Upungufu 10 Unaofuatiliwa',
     statsSubLabel:'Msingi wa maarifa wa Kenya na dawa za vyakula vya hapa na mwongozo wa virutubisho',
     featuresTitle:'MediHelp Hufanya Nini',
@@ -131,6 +137,20 @@ export default function Home() {
             </Link>
             <Link to="/login" className="btn btn-outline" style={{ padding:'0.85rem 2rem', fontSize:'1rem', borderRadius:12, borderColor:'rgba(255,255,255,0.4)', color:'white' }}>
               <I c="fa-right-to-bracket" style={{marginRight:8}}/>{t.signIn}
+            </Link>
+          </div>
+          <div style={{ marginTop:'1rem' }}>
+            <Link to="/guest" style={{ display:'inline-flex', alignItems:'center', gap:7,
+              color:'rgba(255,255,255,0.7)', fontSize:'0.82rem', textDecoration:'none',
+              padding:'6px 16px', borderRadius:20, border:'1px solid rgba(255,255,255,0.2)',
+              background:'rgba(255,255,255,0.05)', transition:'all 0.18s' }}
+              onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,0.1)'}
+              onMouseLeave={e => e.currentTarget.style.background='rgba(255,255,255,0.05)'}>
+              <I c="fa-eye" style={{fontSize:'0.75rem'}}/>
+              {t.tryGuest}
+              <span style={{background:'rgba(134,239,172,0.2)',color:'#86efac',borderRadius:10,padding:'1px 7px',fontSize:'0.68rem',fontWeight:700,border:'1px solid rgba(134,239,172,0.3)'}}>
+                {t.guestSubtext}
+              </span>
             </Link>
           </div>
         </div>

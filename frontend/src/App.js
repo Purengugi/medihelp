@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
+import GuestMode from './pages/GuestMode';
 
 export const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
@@ -181,6 +182,7 @@ export default function App() {
             <Route path="/register" element={!user ? <Register /> : <Navigate to="/dashboard" />} />
             <Route path="/dashboard/*" element={user ? <Dashboard /> : <Navigate to="/login" />} />
             <Route path="/admin/*" element={user?.role === 'ADMIN' ? <Admin /> : <Navigate to="/" />} />
+            <Route path="/guest" element={<GuestMode />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </BrowserRouter>

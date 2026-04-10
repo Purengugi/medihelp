@@ -151,6 +151,12 @@ export default function Register() {
         <p style={{ textAlign:'center', marginTop:'1.25rem', fontSize:'0.875rem', ...text }}>
           {t.hasAccount} <Link to="/login" style={{ color:'#16a34a', fontWeight:600 }}>{t.signin}</Link>
         </p>
+        <div style={{ textAlign:'center', marginTop:'0.75rem', paddingTop:'0.75rem', borderTop:`1px solid ${darkMode?'#334155':'#f3f4f6'}` }}>
+          <Link to="/guest" style={{ fontSize:'0.8rem', color: darkMode?'#64748b':'#9ca3af', display:'inline-flex', alignItems:'center', gap:5, textDecoration:'none' }}>
+            <i className="fa-solid fa-eye" style={{fontSize:'0.7rem'}}/>
+            {lang==='sw'?'Jaribu bila akaunti (Hali ya Onyesho)':'Just browsing? Try Preview Mode'}
+          </Link>
+        </div>
       </div>
     </div>
   );

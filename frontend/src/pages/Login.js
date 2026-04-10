@@ -73,6 +73,12 @@ export default function Login() {
         <p style={{ textAlign:'center', marginTop:'1.25rem', fontSize:'0.875rem', color: darkMode?'#94a3b8':'#6b7280' }}>
           {t.noAccount} <Link to="/register" style={{ color:'#16a34a', fontWeight:600 }}>{t.create}</Link>
         </p>
+        <div style={{ textAlign:'center', marginTop:'0.75rem', paddingTop:'0.75rem', borderTop:`1px solid ${darkMode?'#334155':'#f3f4f6'}` }}>
+          <Link to="/guest" style={{ fontSize:'0.8rem', color: darkMode?'#64748b':'#9ca3af', display:'inline-flex', alignItems:'center', gap:5, textDecoration:'none' }}>
+            <i className="fa-solid fa-eye" style={{fontSize:'0.7rem'}}/>
+            {lang==='sw'?'Endelea bila akaunti (Hali ya Onyesho)':'Continue without an account (Preview Mode)'}
+          </Link>
+        </div>
       </div>
     </div>
   );
